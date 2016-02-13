@@ -115,7 +115,7 @@ var GarageServerIO = (function (socketio) {
                    update.state = state;
                    updateFound = true;
                    return true;
-               } 
+               }
             });
             if (!updateFound) {
                 this.addUpdate(state, seq, time);
@@ -197,19 +197,19 @@ var GarageServerIO = (function (socketio) {
 
         registerSocketEvents = function () {
             _socket.on('connect', function () {
-                _stateController.id = _socket.io.engine.id;
+                _stateController.id = _socket.nsp + "#" + _socket.id;
                 if (_options.logging) {
                     console.log('garageserver.io:: socket connect');
                 }
 
                 if (_options.onPlayerConnect) {
-                    _options.onPlayerConnect(); 
+                    _options.onPlayerConnect();
                 }
             });
 
             _socket.on('s', function (data) {
                 if (_options.onWorldState) {
-                    _options.onWorldState(data.worldState); 
+                    _options.onWorldState(data.worldState);
                 }
                 _stateController.maxUpdateBuffer = data.maxUpdateBuffer;
 
@@ -280,13 +280,13 @@ var GarageServerIO = (function (socketio) {
                     _entityController.entities.forEach(function (entity) {
                         if (entity.referrerId === data.id && entity.referrerSeq === data.seq) {
                             removeEntity(entity.id);
-                        } 
+                        }
                     });
                 }
                 else {
                     removeEntity(data.id);
                 }
-                
+
                 if (_options.logging) {
                     console.log('garageserver.io:: socket removeEntity ' + data.id);
                 }
@@ -320,10 +320,10 @@ var GarageServerIO = (function (socketio) {
                         var entityCurrentStates = [];
                         _entityController.entities.forEach(function(entity) {
                             if (entity.referrerId === player.id) {
-                                entityCurrentStates.push({ id: entity.id, state: entity.state }); 
+                                entityCurrentStates.push({ id: entity.id, state: entity.state });
                             }
                         });
-            
+
                         player.inputController.add(clientInput);
                         _options.onUpdateClientPredictionReady(player.id, player.state, entityCurrentStates, [{ input: clientInput }], _stateController.physicsDelta);
                     }
@@ -331,7 +331,7 @@ var GarageServerIO = (function (socketio) {
                 }
             });
         },
-        
+
         getPlayerStates = function () {
             var playerStates = [];
 
@@ -342,7 +342,7 @@ var GarageServerIO = (function (socketio) {
             }
 
             _playerController.entities.forEach(function(player) {
-               playerStates.push({ id: player.id, state: player.state }); 
+               playerStates.push({ id: player.id, state: player.state });
             });
 
             return playerStates;
@@ -350,7 +350,7 @@ var GarageServerIO = (function (socketio) {
 
         getEntityStates = function () {
             var entityStates = [];
-            
+
             if (_stateController.interpolation && _options.onInterpolation) {
                 processEntityStatesInterpolated(_entityController);
             } else {
@@ -358,12 +358,12 @@ var GarageServerIO = (function (socketio) {
             }
 
             _entityController.entities.forEach(function(entity) {
-               entityStates.push({ id: entity.id, state: entity.state }); 
+               entityStates.push({ id: entity.id, state: entity.state });
             });
 
             return entityStates;
         },
-        
+
         updatePlayerState = function (id, state) {
             _playerController.entities.some(function(player) {
                 if (player.id === id) {
@@ -380,7 +380,7 @@ var GarageServerIO = (function (socketio) {
         addEntity = function (id) {
             _entityController.add(id, _stateController.id);
         },
-        
+
         updateEntityState = function (id, state) {
             _entityController.entities.some(function(entity) {
                 if (entity.id === id) {
@@ -389,7 +389,7 @@ var GarageServerIO = (function (socketio) {
                 }
             });
         },
-        
+
         removeEntity = function (id) {
             _entityController.remove(id);
         },
